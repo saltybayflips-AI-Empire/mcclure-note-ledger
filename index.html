@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>309 McClure St — Private Note Ledger</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#fff; --ink:#14181d; --muted:#5b6673; --line:#e2e6ea;
+    --accent:#0f5c4a; --accent-soft:#e6f2ee;
+    --paid:#0f7a4d; --paid-bg:#e6f4ec;
+    --sched:#5b6673; --sched-bg:#eef0f2;
+    --late:#8a5a00; --late-bg:#fdf3e0;
+    --partial:#8a5a00; --partial-bg:#fdf3e0;
+    --missed:#a11c1c; --missed-bg:#fbeaea;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0d1117; --panel:#161b22; --ink:#e6edf3; --muted:#9198a1; --line:#2a313a;
+      --accent:#4fd1a5; --accent-soft:#12271f;
+      --paid:#4fd1a5; --paid-bg:#12271f;
+      --sched:#9198a1; --sched-bg:#20262e;
+      --late:#e3b341; --late-bg:#2a2415;
+      --partial:#e3b341; --partial-bg:#2a2415;
+      --missed:#f08a8a; --missed-bg:#2c1a1a;
+      --shadow:none;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 72px}
+  header.top{margin-bottom:22px}
+  .eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  h1{font-size:26px;line-height:1.25;margin:6px 0 4px;font-weight:650;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  section{margin-top:24px}
+  h2{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 10px}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .card{padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .card .k{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card .v{font-size:21px;font-weight:640;margin-top:5px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .card .n{font-size:12px;color:var(--muted);margin-top:3px}
+  .card.hero .v{color:var(--accent)}
+
+  .terms{padding:16px 18px}
+  .terms dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 24px;margin:0}
+  .terms dt{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .terms dd{margin:2px 0 0;font-size:14px;font-variant-numeric:tabular-nums}
+
+  .scroll{overflow-x:auto;border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--panel)}
+  th,td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
+  thead th{
+    position:sticky;top:0;background:var(--panel);z-index:1;
+    font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.projected td{color:var(--muted)}
+  tbody tr.next td{background:var(--accent-soft)}
+  td.num,th.num{font-variant-numeric:tabular-nums}
+  tfoot td{font-weight:640;border-top:2px solid var(--line);background:var(--panel)}
+
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
+  .b-paid{color:var(--paid);background:var(--paid-bg)}
+  .b-scheduled{color:var(--sched);background:var(--sched-bg)}
+  .b-late{color:var(--late);background:var(--late-bg)}
+  .b-partial{color:var(--partial);background:var(--partial-bg)}
+  .b-missed{color:var(--missed);background:var(--missed-bg)}
+
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+  .bar .spacer{flex:1}
+  button,select{
+    font:inherit;font-size:13.5px;padding:7px 13px;border-radius:8px;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;
+  }
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  @media (prefers-color-scheme:dark){button.primary{color:#08130f}}
+
+  .note{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .how{padding:16px 18px;font-size:13.5px;line-height:1.6}
+  .how p{margin:0 0 9px}
+  .how p:last-child{margin-bottom:0}
+  .how code{background:var(--sched-bg);padding:1px 5px;border-radius:4px;font-size:12.5px}
+  a{color:var(--accent)}
+  footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+  /* ---- Statement (print) ---- */
+  #statement{display:none}
+  @media print{
+    body{background:#fff;color:#000;font-size:11.5pt}
+    .wrap{max-width:none;padding:0}
+    .noprint{display:none !important}
+    #statement{display:block}
+    .panel,.card,table{box-shadow:none;border-color:#bbb;background:#fff}
+    thead th{background:#fff;color:#333;position:static}
+    .badge{border:1px solid #bbb;background:#fff !important;color:#000 !important}
+    tbody tr.next td{background:#fff}
+    @page{margin:16mm}
+  }
+  .stmt-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:14px}
+  .stmt-head h3{margin:0 0 2px;font-size:17px}
+  .stmt-meta{font-size:12px;color:var(--muted);text-align:right}
+  .stmt-parties{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12.5px;margin:14px 0}
+  .stmt-parties .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .stmt-tot{margin-top:12px;font-size:13px}
+  .stmt-tot .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)}
+  .stmt-tot .row.big{font-weight:650;border-bottom:none;border-top:2px solid var(--line);margin-top:4px}
+  .attest{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top noprint">
+    <div class="eyebrow">Private Promissory Note — Payment Record</div>
+    <h1>309 McClure St, Tallulah, LA 71282</h1>
+    <div class="sub" id="subline">Loading…</div>
+  </header>
+
+  <div id="err" class="panel how noprint" style="display:none;color:var(--missed)"></div>
+
+  <section class="noprint">
+    <h2>Current status</h2>
+    <div class="cards" id="cards"></div>
+    <div class="note" id="statusNote"></div>
+  </section>
+
+  <section class="noprint">
+    <h2>Note terms</h2>
+    <div class="panel terms"><dl id="terms"></dl></div>
+  </section>
+
+  <section class="noprint">
+    <h2>Interest received, by tax year</h2>
+    <div class="scroll panel"><table id="taxTable"></table></div>
+    <div class="note">
+      Only the <strong>interest</strong> column is taxable income to the lender; principal is a return of capital.
+      Figures reflect payments actually recorded as received. Scheduled (not-yet-received) payments are excluded.
+    </div>
+  </section>
+
+  <section class="noprint">
+    <h2>Payment ledger</h2>
+    <div class="bar">
+      <select id="yearSel" title="Statement year"></select>
+      <button id="printBtn" class="primary">Statement → Print / Save PDF</button>
+      <button id="csvBtn">Download CSV</button>
+      <span class="spacer"></span>
+      <button id="toggleBtn">Show all 60</button>
+    </div>
+    <div class="scroll panel"><table id="ledgerTable"></table></div>
+    <div class="note">
+      Interest is charged first on each payment; the remainder reduces principal. A short payment leaves unpaid
+      interest that carries to the next month. Late fees and default interest are <em>informational only</em> —
+      they are never auto-applied to the balance.
+    </div>
+  </section>
+
+  <section class="noprint">
+    <h2>Scheduled interest, if every payment is made on time</h2>
+    <div class="scroll panel"><table id="schedTable"></table></div>
+  </section>
+
+  <section class="noprint">
+    <h2>How this record works</h2>
+    <div class="panel how">
+      <p><strong>Payments 1 through <span id="ctNum">0</span> have been confirmed received</strong> by the lender.
+      Unless listed as an exception below, each is recorded as $450.00 paid on its due date. Everything after that
+      is shown as <span class="badge b-scheduled">Scheduled</span> — a projection, not a claim that money changed hands.</p>
+      <p>The lender records exceptions — a missed, late, partial, or extra payment — in a single file,
+      <code>ledger.json</code>. The amortization is recalculated from those actual amounts and dates, so a late or
+      partial payment correctly changes how much of every later payment goes to interest versus principal.</p>
+      <p><strong>Every change to this ledger is permanently recorded in the public commit history</strong>, with a
+      timestamp and author. Nothing can be altered silently. Both parties can review the full history:
+      <a id="historyLink" href="#" target="_blank" rel="noopener">view the change log →</a></p>
+      <p><strong>If you believe an entry is wrong,</strong> email the lender. This ledger is maintained by the lender
+      and is not a substitute for your own records or bank statements.</p>
+    </div>
+  </section>
+
+  <footer class="noprint">
+    <div id="footer"></div>
+  </footer>
+
+  <!-- ===== Printable statement ===== -->
+  <div id="statement">
+    <div class="stmt-head">
+      <div>
+        <h3>Loan Statement</h3>
+        <div style="font-size:12.5px" id="stmtProp"></div>
+      </div>
+      <div class="stmt-meta" id="stmtMeta"></div>
+    </div>
+    <div class="stmt-parties">
+      <div><div class="k">Lender</div><div id="stmtLender"></div></div>
+      <div><div class="k">Borrower</div><div id="stmtBorrower"></div></div>
+      <div><div class="k">Original principal</div><div id="stmtPrincipal"></div></div>
+      <div><div class="k">Rate / Term</div><div id="stmtTerms"></div></div>
+      <div><div class="k">Secured by</div><div id="stmtSecurity"></div></div>
+      <div><div class="k">Guarantor</div><div id="stmtGuarantor"></div></div>
+    </div>
+    <table id="stmtTable"></table>
+    <div class="stmt-tot" id="stmtTotals"></div>
+    <div class="attest" id="stmtAttest"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var C = function(cents){
+    var neg = cents < 0; cents = Math.abs(Math.round(cents));
+    var s = (cents/100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (neg?"-$":"$") + s;
+  };
+  var pct = function(r){ return (r*100).toFixed(r*100 % 1 === 0 ? 0 : 3) + "%"; };
+
+  function parseDate(s){ var p = s.split("-"); return new Date(Date.UTC(+p[0], +p[1]-1, +p[2])); }
+  function fmtDate(d){
+    if(!d) return "—";
+    return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"});
+  }
+  function iso(d){ return d.toISOString().slice(0,10); }
+  function addMonths(d, m){
+    var y = d.getUTCFullYear(), mo = d.getUTCMonth() + m, day = d.getUTCDate();
+    var t = new Date(Date.UTC(y, mo, 1));
+    var last = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth()+1, 0)).getUTCDate();
+    return new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), Math.min(day,last)));
+  }
+  function daysBetween(a,b){ return Math.round((a-b)/86400000); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  /* ---------- amortization engine (integer cents) ---------- */
+  function buildRows(note, confirmedThrough, exceptions){
+    var exMap = {};
+    (exceptions||[]).forEach(function(e){ exMap[e.n] = e; });
+
+    var bal = Math.round(note.principal * 100);
+    var carry = 0;
+    var mRate = note.annualRate / 12;
+    var basePmt = Math.round(note.monthlyPayment * 100);
+    var first = parseDate(note.firstPaymentDate);
+    var rows = [];
+
+    for(var n = 1; n <= note.termMonths; n++){
+      var due = addMonths(first, n-1);
+      var actual = n <= confirmedThrough;
+      var ex = exMap[n];
+
+      var accrued = Math.round(bal * mRate) + carry;
+      var payoff = bal + accrued;
+
+      var amt, recv;
+      if(actual){
+        amt  = (ex && ex.amount != null) ? Math.round(ex.amount * 100) : basePmt;
+        recv = (ex && ex.receivedOn) ? parseDate(ex.receivedOn) : due;
+      }else{
+        amt  = Math.min(basePmt, payoff);
+        recv = null;
+      }
+      if(amt > payoff) amt = payoff;      // never overpay the loan
+
+      var intPaid  = Math.min(amt, accrued);
+      carry        = accrued - intPaid;
+      var prinPaid = amt - intPaid;
+      if(prinPaid > bal) prinPaid = bal;
+      bal -= prinPaid;
+
+      var status, daysLate = 0;
+      if(!actual) status = "scheduled";
+      else{
+        daysLate = Math.max(0, daysBetween(recv, due));
+        if(amt === 0) status = "missed";
+        else if(amt < basePmt) status = "partial";
+        else if(daysLate > 0) status = "late";
+        else status = "paid";
+      }
+
+      var lateFee = 0;
+      if(actual && amt > 0 && daysLate > note.lateFeeGraceDays)
+        lateFee = Math.round(amt * note.lateFeeRate);
+
+      rows.push({
+        n:n, due:due, recv:recv, actual:actual,
+        // a missed payment has no receipt date, even though we bucket it by its due date
+        recvShown: (actual && amt > 0) ? recv : null,
+        amount:amt, interest:intPaid, principal:prinPaid,
+        balance:bal, carry:carry, status:status,
+        daysLate:daysLate, lateFee:lateFee,
+        note: ex && ex.note ? ex.note : ""
+      });
+
+      if(bal === 0 && carry === 0 && n < note.termMonths){
+        rows.push({payoff:true, n:n});
+        break;
+      }
+    }
+    return rows;
+  }
+
+  var BADGE = {
+    paid:"Paid", scheduled:"Scheduled", late:"Late", partial:"Partial", missed:"Missed"
+  };
+
+  /* ---------- render ---------- */
+  function render(L){
+    var note = L.note;
+    var ct   = L.confirmedThrough || 0;
+    var rows = buildRows(note, ct, L.exceptions).filter(function(r){ return !r.payoff; });
+    var sched = buildRows(note, 0, []).filter(function(r){ return !r.payoff; });
+
+    var actualRows = rows.filter(function(r){ return r.actual; });
+    var paidPrincipal = actualRows.reduce(function(s,r){ return s + r.principal; }, 0);
+    var paidInterest  = actualRows.reduce(function(s,r){ return s + r.interest;  }, 0);
+    var received      = actualRows.reduce(function(s,r){ return s + r.amount;    }, 0);
+    var missedCount   = actualRows.filter(function(r){ return r.status==="missed"; }).length;
+    var lateCount     = actualRows.filter(function(r){ return r.status==="late" || r.status==="partial"; }).length;
+
+    var pi = note.prepaidInterest;
+    var piCents = pi ? Math.round(pi.amount*100) : 0;
+    var totalInterestIncome = paidInterest + piCents;
+
+    var curBal = actualRows.length ? actualRows[actualRows.length-1].balance : Math.round(note.principal*100);
+    var carryNow = actualRows.length ? actualRows[actualRows.length-1].carry : 0;
+    var nextRow = rows.find(function(r){ return !r.actual; });
+
+    document.getElementById("subline").textContent =
+      note.borrower + "  →  " + note.lender + "   ·   " + C(Math.round(note.principal*100)) +
+      " @ " + pct(note.annualRate) + " · " + note.termMonths + " × " + C(Math.round(note.monthlyPayment*100));
+
+    /* cards */
+    var status = missedCount ? "b-missed" : (lateCount ? "b-late" : "b-paid");
+    var statusTxt = missedCount ? missedCount + " missed" : (lateCount ? lateCount + " late/partial" : "Current");
+    document.getElementById("cards").innerHTML = [
+      card("Principal balance", C(curBal), "Was " + C(Math.round(note.principal*100)) + " at funding", true),
+      card("Payments received", ct + " of " + note.termMonths, received ? C(received) + " collected" : "None yet"),
+      card("Principal repaid", C(paidPrincipal), ""),
+      card("Interest received", C(totalInterestIncome), piCents ? "incl. " + C(piCents) + " prepaid at closing" : "taxable to lender"),
+      card("Next payment due", nextRow ? fmtDate(nextRow.due) : "Paid off",
+           nextRow ? C(nextRow.amount) : ""),
+      card("Standing", '<span class="badge '+status+'">'+statusTxt+"</span>",
+           carryNow ? C(carryNow) + " unpaid interest carried" : "")
+    ].join("");
+
+    document.getElementById("statusNote").innerHTML =
+      "Confirmed received through payment <strong>#" + ct + "</strong>. " +
+      (nextRow ? "Payments after that are projections, not a record of receipt." : "Loan paid in full.") +
+      " Last updated " + esc(L.asOf) + ".";
+
+    // A recorded exception past confirmedThrough would be silently ignored — say so loudly.
+    var orphans = (L.exceptions||[]).filter(function(e){ return e.n > ct; }).map(function(e){ return "#"+e.n; });
+    if(orphans.length){
+      var w = document.getElementById("err");
+      w.style.display = "block";
+      w.style.color = "var(--late)";
+      w.innerHTML = "<strong>Heads up:</strong> exception" + (orphans.length>1?"s":"") + " recorded for payment " +
+        orphans.join(", ") + ", but <code>confirmedThrough</code> is only " + ct +
+        " — so " + (orphans.length>1?"they are":"it is") + " being ignored. Raise <code>confirmedThrough</code> to at least " +
+        Math.max.apply(null, (L.exceptions||[]).map(function(e){return e.n;})) + " for it to take effect.";
+    }
+
+    /* terms */
+    var rec = note.recording || {};
+    document.getElementById("terms").innerHTML = [
+      dt("Original principal", C(Math.round(note.principal*100))),
+      dt("Interest rate", pct(note.annualRate) + " fixed, per annum"),
+      dt("Monthly payment", C(Math.round(note.monthlyPayment*100))),
+      dt("Term", note.termMonths + " months, fully amortizing"),
+      dt("First payment", fmtDate(parseDate(note.firstPaymentDate))),
+      dt("Maturity", fmtDate(parseDate(note.maturityDate))),
+      dt("Funded", fmtDate(parseDate(note.fundedOn))),
+      dt("Lender", note.lender),
+      dt("Borrower", note.borrower),
+      dt("Guarantor", note.guarantor),
+      dt("Security", rec.lienPosition ? rec.lienPosition + "-position mortgage, " + rec.jurisdiction : "—"),
+      dt("Recorded", rec.instrument ? "Inst. #" + rec.instrument + " · Book " + rec.book + " / Page " + rec.page + " · " + fmtDate(parseDate(rec.recordedOn)) : "—"),
+      dt("Late fee", pct(note.lateFeeRate) + " after " + note.lateFeeGraceDays + " days (informational)"),
+      dt("Default rate", pct(note.defaultRate) + " (informational)")
+    ].join("");
+
+    /* tax-year table */
+    var byYear = {};
+    actualRows.forEach(function(r){
+      var y = r.recv.getUTCFullYear();
+      byYear[y] = byYear[y] || {i:0,p:0,t:0};
+      byYear[y].i += r.interest; byYear[y].p += r.principal; byYear[y].t += r.amount;
+    });
+    if(piCents){
+      var py = parseDate(pi.receivedOn).getUTCFullYear();
+      byYear[py] = byYear[py] || {i:0,p:0,t:0};
+      byYear[py].i += piCents; byYear[py].t += piCents;
+    }
+    var yrs = Object.keys(byYear).sort();
+    var tt = "<thead><tr><th>Tax year</th><th class='num'>Interest (taxable)</th><th class='num'>Principal (not taxable)</th><th class='num'>Total received</th></tr></thead><tbody>";
+    if(!yrs.length){
+      tt += "<tr><td colspan='4' style='color:var(--muted)'>No payments received yet.</td></tr>";
+    }else{
+      yrs.forEach(function(y){
+        var v = byYear[y];
+        tt += "<tr><td>"+y+(piCents && +y===parseDate(pi.receivedOn).getUTCFullYear() ? " *" : "")+
+              "</td><td class='num'>"+C(v.i)+"</td><td class='num'>"+C(v.p)+"</td><td class='num'>"+C(v.t)+"</td></tr>";
+      });
+    }
+    tt += "</tbody>";
+    if(yrs.length){
+      var ti=0,tp=0,tv=0; yrs.forEach(function(y){ti+=byYear[y].i;tp+=byYear[y].p;tv+=byYear[y].t;});
+      tt += "<tfoot><tr><td>Total</td><td class='num'>"+C(ti)+"</td><td class='num'>"+C(tp)+"</td><td class='num'>"+C(tv)+"</td></tr></tfoot>";
+    }
+    document.getElementById("taxTable").innerHTML = tt;
+
+    /* ledger */
+    var showAll = false;
+    function drawLedger(){
+      var view = showAll ? rows : rows.filter(function(r){ return r.n <= ct + 6; });
+      var h = "<thead><tr><th>#</th><th>Due</th><th>Received</th><th class='num'>Amount</th><th class='num'>Interest</th><th class='num'>Principal</th><th class='num'>Balance</th><th>Status</th></tr></thead><tbody>";
+      view.forEach(function(r){
+        var cls = r.actual ? "" : "projected";
+        if(nextRow && r.n === nextRow.n) cls += " next";
+        var badge = '<span class="badge b-'+r.status+'">'+BADGE[r.status]+'</span>';
+        if(r.daysLate > 0) badge += ' <span style="color:var(--muted);font-size:11.5px">'+r.daysLate+'d late</span>';
+        // don't echo a note that just repeats the status word ("late", "missed", …)
+        if(r.note && r.note.trim().toLowerCase() !== BADGE[r.status].toLowerCase())
+          badge += ' <span style="color:var(--muted);font-size:11.5px">'+esc(r.note)+'</span>';
+        h += "<tr class='"+cls+"'><td>"+r.n+"</td><td>"+fmtDate(r.due)+"</td><td>"+fmtDate(r.recvShown)+
+             "</td><td class='num'>"+C(r.amount)+"</td><td class='num'>"+C(r.interest)+
+             "</td><td class='num'>"+C(r.principal)+"</td><td class='num'>"+C(r.balance)+"</td><td>"+badge+"</td></tr>";
+      });
+      h += "</tbody>";
+      document.getElementById("ledgerTable").innerHTML = h;
+      document.getElementById("toggleBtn").textContent = showAll ? "Show recent only" : "Show all " + note.termMonths;
+    }
+    drawLedger();
+    document.getElementById("toggleBtn").onclick = function(){ showAll = !showAll; drawLedger(); };
+
+    /* scheduled-interest-by-year table */
+    var sy = {};
+    sched.forEach(function(r){ var y=r.due.getUTCFullYear(); sy[y]=(sy[y]||0)+r.interest; });
+    var st = "<thead><tr><th>Year</th><th class='num'>Scheduled interest</th></tr></thead><tbody>";
+    Object.keys(sy).sort().forEach(function(y){ st += "<tr><td>"+y+"</td><td class='num'>"+C(sy[y])+"</td></tr>"; });
+    var stot = Object.keys(sy).reduce(function(s,y){ return s+sy[y]; },0);
+    st += "</tbody><tfoot><tr><td>Lifetime interest</td><td class='num'>"+C(stot)+"</td></tr></tfoot>";
+    document.getElementById("schedTable").innerHTML = st;
+
+    /* year selector + statement */
+    var allYears = {};
+    rows.forEach(function(r){ allYears[r.due.getUTCFullYear()] = 1; });
+    var ysel = document.getElementById("yearSel");
+    ysel.innerHTML = Object.keys(allYears).sort().map(function(y){
+      return "<option value='"+y+"'>Statement: "+y+"</option>";
+    }).join("");
+    var thisYear = new Date().getUTCFullYear();
+    if(allYears[thisYear]) ysel.value = String(thisYear);
+
+    function buildStatement(year){
+      year = +year;
+      document.getElementById("stmtProp").textContent = note.property;
+      document.getElementById("stmtMeta").innerHTML =
+        "<div><strong>Period:</strong> Jan 1 – Dec 31, " + year + "</div>" +
+        "<div>Generated " + fmtDate(new Date()) + "</div>" +
+        "<div>Ledger as of " + esc(L.asOf) + "</div>";
+      document.getElementById("stmtLender").textContent = note.lender;
+      document.getElementById("stmtBorrower").textContent = note.borrower;
+      document.getElementById("stmtPrincipal").textContent = C(Math.round(note.principal*100)) + " funded " + fmtDate(parseDate(note.fundedOn));
+      document.getElementById("stmtTerms").textContent = pct(note.annualRate) + " fixed · " + note.termMonths + " × " + C(Math.round(note.monthlyPayment*100)) + " · matures " + fmtDate(parseDate(note.maturityDate));
+      document.getElementById("stmtSecurity").textContent = rec.instrument
+        ? rec.lienPosition + "-position mortgage, " + rec.jurisdiction + " (Inst. #" + rec.instrument + ", Bk " + rec.book + "/Pg " + rec.page + ")"
+        : "—";
+      document.getElementById("stmtGuarantor").textContent = note.guarantor;
+
+      var yr = rows.filter(function(r){ return r.due.getUTCFullYear() === year; });
+      var h = "<thead><tr><th>#</th><th>Due</th><th>Received</th><th class='num'>Amount</th><th class='num'>Interest</th><th class='num'>Principal</th><th class='num'>Balance</th><th>Status</th></tr></thead><tbody>";
+      yr.forEach(function(r){
+        h += "<tr><td>"+r.n+"</td><td>"+fmtDate(r.due)+"</td><td>"+fmtDate(r.recvShown)+
+             "</td><td class='num'>"+C(r.amount)+"</td><td class='num'>"+C(r.interest)+
+             "</td><td class='num'>"+C(r.principal)+"</td><td class='num'>"+C(r.balance)+
+             "</td><td>"+BADGE[r.status]+(r.daysLate>0?" ("+r.daysLate+"d late)":"")+"</td></tr>";
+      });
+      h += "</tbody>";
+      document.getElementById("stmtTable").innerHTML = h;
+
+      var recvd = yr.filter(function(r){ return r.actual; });
+      var yi = recvd.reduce(function(s,r){ return s+r.interest; },0);
+      var yp = recvd.reduce(function(s,r){ return s+r.principal; },0);
+      var yt = recvd.reduce(function(s,r){ return s+r.amount; },0);
+      var extra = "";
+      if(piCents && parseDate(pi.receivedOn).getUTCFullYear() === year){
+        yi += piCents; yt += piCents;
+        extra = "<div class='row'><span>Prepaid (odd-days) interest received " + fmtDate(parseDate(pi.receivedOn)) +
+                ", accrued " + fmtDate(parseDate(pi.periodStart)) + " – " + fmtDate(parseDate(pi.periodEnd)) +
+                "</span><span>" + C(piCents) + "</span></div>";
+      }
+      var openBal = yr.length ? (yr[0].balance + yr[0].principal) : curBal;
+      var closeBal = yr.length ? yr[yr.length-1].balance : curBal;
+
+      document.getElementById("stmtTotals").innerHTML =
+        "<div class='row'><span>Principal balance, start of year</span><span>"+C(openBal)+"</span></div>" +
+        extra +
+        "<div class='row'><span>Interest received in "+year+" <strong>(taxable interest income)</strong></span><span>"+C(yi)+"</span></div>" +
+        "<div class='row'><span>Principal received in "+year+" (return of capital, not income)</span><span>"+C(yp)+"</span></div>" +
+        "<div class='row'><span>Principal balance, end of year</span><span>"+C(closeBal)+"</span></div>" +
+        "<div class='row big'><span>Total received in "+year+"</span><span>"+C(yt)+"</span></div>";
+
+      document.getElementById("stmtAttest").innerHTML =
+        "Rows marked <em>Scheduled</em> are projections and do not represent payments received. " +
+        "Confirmed received through payment #" + ct + ". This statement is generated from ledger.json; " +
+        "every revision to that file is permanently timestamped in the repository's public commit history. " +
+        "Maintained by " + esc(L.updatedBy || note.lender) + ". Not a tax document.";
+    }
+    buildStatement(ysel.value);
+    ysel.onchange = function(){ buildStatement(this.value); };
+    document.getElementById("printBtn").onclick = function(){ buildStatement(ysel.value); window.print(); };
+
+    /* CSV */
+    document.getElementById("csvBtn").onclick = function(){
+      var lines = [["Payment #","Due date","Date received","Amount","Interest","Principal","Ending balance","Unpaid interest carried","Status","Days late","Note"].join(",")];
+      rows.forEach(function(r){
+        lines.push([
+          r.n, iso(r.due), r.recvShown ? iso(r.recvShown) : "",
+          (r.amount/100).toFixed(2), (r.interest/100).toFixed(2), (r.principal/100).toFixed(2),
+          (r.balance/100).toFixed(2), (r.carry/100).toFixed(2),
+          BADGE[r.status], r.daysLate || "", '"' + (r.note||"").replace(/"/g,'""') + '"'
+        ].join(","));
+      });
+      if(piCents) lines.push(["0", iso(parseDate(pi.periodStart)), iso(parseDate(pi.receivedOn)),
+        (piCents/100).toFixed(2), (piCents/100).toFixed(2), "0.00", (Math.round(note.principal*100)/100).toFixed(2), "0.00",
+        "Prepaid interest","", '"odd-days interest collected at closing"'].join(","));
+      var blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "309-mcclure-note-ledger-" + L.asOf + ".csv";
+      a.click(); URL.revokeObjectURL(a.href);
+    };
+
+    document.getElementById("ctNum").textContent = ct;
+
+    var repo = "https://github.com/" + (window.__REPO__ || "saltybayflips-AI-Empire/mcclure-note-ledger");
+    document.getElementById("historyLink").href = repo + "/commits/main/ledger.json";
+    document.getElementById("footer").innerHTML =
+      "Maintained by " + esc(L.updatedBy || note.lender) + " · ledger as of " + esc(L.asOf) +
+      " · <a href='" + repo + "/commits/main/ledger.json' target='_blank' rel='noopener'>tamper-evident change history</a>" +
+      " · <a href='" + repo + "' target='_blank' rel='noopener'>source</a><br>" +
+      "This page is a payment record, not a tax document and not legal advice. " +
+      "The controlling documents are the executed promissory note and the recorded mortgage.";
+
+    function card(k,v,n,hero){
+      return '<div class="card'+(hero?" hero":"")+'"><div class="k">'+esc(k)+'</div><div class="v">'+v+"</div>"+
+             (n?'<div class="n">'+esc(n)+"</div>":"")+"</div>";
+    }
+    function dt(k,v){ return "<div><dt>"+esc(k)+"</dt><dd>"+esc(v)+"</dd></div>"; }
+  }
+
+  fetch("./ledger.json", {cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+    .then(render)
+    .catch(function(e){
+      var el = document.getElementById("err");
+      el.style.display = "block";
+      el.textContent = "Could not load ledger.json — " + e.message;
+      document.getElementById("subline").textContent = "Error";
+    });
+})();
+</script>
+</body>
+</html>

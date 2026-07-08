@@ -1,0 +1,43 @@
+{
+  "_README": "This is the ONLY file you edit. See README.md. Every change is timestamped in the public git commit history.",
+
+  "note": {
+    "property": "309 McClure St, Tallulah, LA 71282 (Madison Parish)",
+    "lender": "Khalil Giawashi",
+    "borrower": "Unilateral, LLC (a Wyoming limited liability company)",
+    "guarantor": "Joshua Shane Farris, individually",
+    "principal": 20229.77,
+    "annualRate": 0.12,
+    "monthlyPayment": 450.00,
+    "termMonths": 60,
+    "firstPaymentDate": "2026-08-01",
+    "maturityDate": "2031-07-01",
+    "fundedOn": "2026-06-24",
+    "closedOn": "2026-06-26",
+    "lateFeeGraceDays": 10,
+    "lateFeeRate": 0.05,
+    "defaultRate": 0.18,
+    "prepaidInterest": {
+      "amount": 232.75,
+      "periodStart": "2026-06-26",
+      "periodEnd": "2026-07-31",
+      "receivedOn": "2026-07-08",
+      "note": "Odd-days interest accrued from closing to the first payment date. Collected from the borrower at closing and disbursed to the lender. Taxable interest income to the lender in the year received."
+    },
+    "recording": {
+      "jurisdiction": "Madison Parish, Louisiana",
+      "instrument": "149571",
+      "book": "474",
+      "page": "919",
+      "recordedOn": "2026-06-29",
+      "lienPosition": "First"
+    }
+  },
+
+  "confirmedThrough": 0,
+
+  "exceptions": [],
+
+  "asOf": "2026-07-08",
+  "updatedBy": "Khalil Giawashi"
+}
