@@ -1,0 +1,100 @@
+# Record a payment from anywhere, including your phone.
+#
+#   GitHub -> Actions -> "Record payment" -> "Run workflow"
+#
+# Only repository collaborators can run this. The borrower cannot.
+
+name: Record payment
+
+on:
+  workflow_dispatch:
+    inputs:
+      amount:
+        description: 'Dollars received. 0 = missed. Blank = the scheduled $450.00.'
+        required: false
+        default: ''
+      received:
+        description: 'Date received (YYYY-MM-DD). Blank = arrived on the due date.'
+        required: false
+        default: ''
+      note:
+        description: 'Note shown on the row, e.g. late / partial / extra principal'
+        required: false
+        default: ''
+      amend:
+        description: 'Payment # to CORRECT (blank = record the next payment). Does not advance confirmedThrough.'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Preview only — change nothing'
+        type: boolean
+        default: false
+
+# Never let two payment recordings race each other into the ledger.
+concurrency:
+  group: ledger-write
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Inputs go through the environment, never interpolated into the shell.
+      - name: Record the payment
+        env:
+          AMOUNT:   ${{ inputs.amount }}
+          RECEIVED: ${{ inputs.received }}
+          NOTE:     ${{ inputs.note }}
+          AMEND:    ${{ inputs.amend }}
+          DRY:      ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          args=()
+          [ -n "$AMEND" ]    && args+=(--amend "$AMEND")     || true
+          [ -n "$AMOUNT" ]   && args+=(--amount "$AMOUNT")   || true
+          [ -n "$RECEIVED" ] && args+=(--received "$RECEIVED") || true
+          [ -n "$NOTE" ]     && args+=(--note "$NOTE")       || true
+          [ "$DRY" = "true" ] && args+=(--dry-run)           || true
+
+          {
+            echo '## Payment recording'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          python tools/record_payment.py "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and publish
+        if: ${{ !inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- ledger.json; then
+            echo "Ledger unchanged — nothing to publish." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          CT=$(python -c "import json;print(json.load(open('ledger.json'))['confirmedThrough'])")
+          AS=$(python -c "import json;print(json.load(open('ledger.json'))['asOf'])")
+
+          git config user.name  "Khalil Giawashi"
+          git config user.email "khalilgio@gmail.com"
+          git add ledger.json
+          git commit -m "Record payment #${CT} (as of ${AS}) [run by ${GITHUB_ACTOR}]"
+          git push
+
+          {
+            echo ''
+            echo "Published by **${GITHUB_ACTOR}**."
+            echo ''
+            echo 'Live page (about a minute to rebuild): https://saltybayflips-ai-empire.github.io/mcclure-note-ledger/'
+          } >> "$GITHUB_STEP_SUMMARY"

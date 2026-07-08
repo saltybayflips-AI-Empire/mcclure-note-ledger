@@ -20,14 +20,43 @@ The alternative was a third-party loan servicer (~$1,265 over the life of the lo
 
 ---
 
-## How to update it (the only thing you ever do)
+## Who can change this
 
-You edit **one file: `ledger.json`**. Nothing else. Easiest way is right in the browser:
+**Only the lender.** Write access is limited to `khailgio` and the `saltybayflips-AI-Empire` org account. The borrower — and the rest of the internet — can **read** the page and nothing more. That is enforced by GitHub, not by trust.
 
-1. Go to [`ledger.json`](https://github.com/saltybayflips-AI-Empire/mcclure-note-ledger/blob/main/ledger.json)
-2. Click the **pencil icon** (✏️ Edit this file)
-3. Make the change (below)
-4. Scroll down, click **Commit changes**
+Anyone can fork the repo or open an issue. Neither changes the ledger: a pull request is a *proposal* that only the lender can merge. **Issues are left open on purpose** — they give the borrower a public, timestamped way to dispute an entry, which makes the record stronger, not weaker.
+
+---
+
+## How to record a payment — three ways
+
+All three run the same validation and produce the same one-line commit. Pick whichever is in front of you.
+
+### 1. From your computer (easiest)
+
+```powershell
+cd C:\Users\khali\Projects\mcclure-note-ledger
+.\Record-Payment.ps1
+```
+
+It pulls the latest, asks what happened, shows you the diff, and publishes on your OK. Non-interactive versions:
+
+```powershell
+.\Record-Payment.ps1 -Yes                                             # paid $450 on time
+.\Record-Payment.ps1 -Amount 450 -Received 2026-10-14 -Note late -Yes # late
+.\Record-Payment.ps1 -Amount 200 -Received 2026-11-01 -Note partial -Yes
+.\Record-Payment.ps1 -Amount 0 -Note missed -Yes
+.\Record-Payment.ps1 -Amend 3 -Amount 450 -Received 2026-10-14 -Yes   # fix a past entry
+.\Record-Payment.ps1 -DryRun                                          # preview, change nothing
+```
+
+### 2. From your phone
+
+**GitHub → Actions → "Record payment" → Run workflow.** Fill in the boxes (all optional — blank means "the scheduled $450, on the due date") and press the green button. Only collaborators see that button. Tick **dry run** to preview first.
+
+### 3. By hand
+
+Edit [`ledger.json`](https://github.com/saltybayflips-AI-Empire/mcclure-note-ledger/blob/main/ledger.json) → pencil icon → **Commit changes**. See the format below. The script exists so you don't have to do this, but nothing stops you.
 
 The live page updates within a minute or two.
 
@@ -88,9 +117,21 @@ Nothing about this loan belongs in Stessa. It is a personal note receivable, not
 
 | File | Purpose |
 |---|---|
-| `ledger.json` | The only file you edit: note terms, `confirmedThrough`, and exceptions. |
+| `ledger.json` | The only data file: note terms, `confirmedThrough`, and exceptions. |
 | `index.html` | The whole app. Self-contained — no frameworks, no CDN, no tracking, works offline. |
+| `Record-Payment.ps1` | Record a payment from your computer: pull → validate → diff → commit → push. |
+| `tools/record_payment.py` | The validation + write logic. Used by the script and the phone button alike. |
+| `.github/workflows/record-payment.yml` | The phone button (Actions → Record payment). Collaborators only. |
 | `robots.txt` | Asks search engines not to index the page. |
+
+### What the recorder refuses to do
+
+- **Record a payment dated in the future.** `confirmedThrough` may only ever cover money that has actually landed.
+- **Skip a payment.** Payments record in order; use `--amend N` to correct one already recorded.
+- **Amend a payment that was never recorded**, or record past payment #60.
+- **Accept a negative amount**, or a received-date on a $0 (missed) payment.
+
+It also *tells* you, without acting: how many days late a payment was and what the note's 5% late fee would come to, and — on a missed payment — that unpaid interest carries forward and the note carries an 18% default rate. **Late fees and default interest are never applied automatically.** Charging them is the lender's call.
 
 Not indexed by search engines, but the repository is **public** — anyone with the URL can read it. No Social Security numbers, bank account numbers, or routing numbers ever go in this repo. (The loan amount, rate, parties, and lien are already public record at the Madison Parish Clerk of Court.)
 
