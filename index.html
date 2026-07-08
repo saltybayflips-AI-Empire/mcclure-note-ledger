@@ -174,9 +174,7 @@
   <section class="noprint">
     <h2>How this record works</h2>
     <div class="panel how">
-      <p><strong>Payments 1 through <span id="ctNum">0</span> have been confirmed received</strong> by the lender.
-      Unless listed as an exception below, each is recorded as $450.00 paid on its due date. Everything after that
-      is shown as <span class="badge b-scheduled">Scheduled</span> — a projection, not a claim that money changed hands.</p>
+      <p id="howConfirmed"></p>
       <p>The lender records exceptions — a missed, late, partial, or extra payment — in a single file,
       <code>ledger.json</code>. The amortization is recalculated from those actual amounts and dates, so a late or
       partial payment correctly changes how much of every later payment goes to interest versus principal.</p>
@@ -544,7 +542,16 @@
       a.click(); URL.revokeObjectURL(a.href);
     };
 
-    document.getElementById("ctNum").textContent = ct;
+    var pmtStr = C(Math.round(note.monthlyPayment*100));
+    document.getElementById("howConfirmed").innerHTML = ct === 0
+      ? "<strong>No payments have been confirmed received yet.</strong> The first is due " +
+        fmtDate(parseDate(note.firstPaymentDate)) + ". Every row below is shown as " +
+        '<span class="badge b-scheduled">Scheduled</span> — a projection of what the loan will look like if paid ' +
+        "on time, not a claim that any money has changed hands."
+      : "<strong>Payment" + (ct===1 ? " 1 has" : "s 1 through " + ct + " have") + " been confirmed received</strong> " +
+        "by the lender. Except where an exception is recorded, each is logged as " + pmtStr + " paid on its due date. " +
+        "Everything after payment " + ct + " is shown as " +
+        '<span class="badge b-scheduled">Scheduled</span> — a projection, not a claim that money changed hands.';
 
     var repo = "https://github.com/" + (window.__REPO__ || "saltybayflips-AI-Empire/mcclure-note-ledger");
     document.getElementById("historyLink").href = repo + "/commits/main/ledger.json";
