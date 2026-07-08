@@ -97,13 +97,21 @@ def main() -> None:
 
     if amount < 0:
         sys.exit("ERROR: amount cannot be negative.")
-    if received > today:
-        sys.exit(f"ERROR: received date {received} is in the future (today is {today}). "
-                 "confirmedThrough must only ever cover money that has ACTUALLY landed.")
-    if received < due and amount > 0:
-        print(f"  note: paid {(due - received).days} day(s) EARLY (due {due}).")
     if amount == 0 and args.received:
         sys.exit("ERROR: a missed payment ($0) has no received date. Drop --received.")
+
+    if amount > 0:
+        # Money that hasn't landed cannot be inside confirmedThrough.
+        if received > today:
+            sys.exit(f"ERROR: received date {received} is in the future (today is {today}). "
+                     "confirmedThrough must only ever cover money that has ACTUALLY landed.")
+        if received < due:
+            print(f"  note: paid {(due - received).days} day(s) EARLY (due {due}).")
+    else:
+        # You cannot call a payment "missed" before it was ever due.
+        if due > today:
+            sys.exit(f"ERROR: payment #{n} isn't due until {due} (today is {today}). "
+                     "Nothing to record yet.")
 
     # ---- build the entry ----------------------------------------------
     clean = (abs(amount - sched) < 0.005) and (received == due) and not args.note.strip()
