@@ -1,0 +1,3 @@
+# Keep line endings identical everywhere so payment commits show a clean,
+# one-line diff and git never emits CRLF warnings.
+* text=auto eol=lf

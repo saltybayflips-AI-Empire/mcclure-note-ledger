@@ -1,6 +1,5 @@
 {
   "_README": "This is the ONLY file you edit. See README.md. Every change is timestamped in the public git commit history.",
-
   "note": {
     "property": "309 McClure St, Tallulah, LA 71282 (Madison Parish)",
     "lender": "Khalil Giawashi",
@@ -8,7 +7,7 @@
     "guarantor": "Joshua Shane Farris, individually",
     "principal": 20229.77,
     "annualRate": 0.12,
-    "monthlyPayment": 450.00,
+    "monthlyPayment": 450.0,
     "termMonths": 60,
     "firstPaymentDate": "2026-08-01",
     "maturityDate": "2031-07-01",
@@ -33,11 +32,8 @@
       "lienPosition": "First"
     }
   },
-
   "confirmedThrough": 0,
-
   "exceptions": [],
-
   "asOf": "2026-07-08",
   "updatedBy": "Khalil Giawashi"
 }
