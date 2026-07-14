@@ -434,6 +434,7 @@
       document.getElementById("railSection").style.display = "";
       document.getElementById("rail").innerHTML = [
         rail.method        ? dt("Method", rail.method) : "",
+        rail.status        ? dt("Status", rail.status) : "",
         rail.schedule      ? dt("Schedule", rail.schedule) : "",
         rail.setUpOn       ? dt("Set up", fmtDate(parseDate(rail.setUpOn))) : "",
         rail.lenderDetailsHeldBy ? dt("Lender's bank details", rail.lenderDetailsHeldBy) : ""

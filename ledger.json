@@ -33,10 +33,11 @@
     },
     "paymentRail": {
       "method": "Recurring ACH push, originated by the borrower through Mercury",
+      "status": "Scheduled and confirmed by the borrower on 2026-07-14",
       "setUpOn": "2026-07-14",
-      "schedule": "$450.00 auto-drafted on or around the 1st, for 60 months (Aug 2026 - Jul 2031)",
-      "timingNote": "The draft may land a day or two after the 1st when it falls on a weekend or bank holiday. That is expected and is not treated as a late payment - the note allows a 10-day grace period before any late fee.",
-      "lenderDetailsHeldBy": "Mercury (entered by the lender directly via Mercury's payee portal; no account numbers are stored in this repository)"
+      "schedule": "$450.00 auto-drafted for 60 months. First payment 2026-08-03 (Aug 1 is a Saturday); thereafter on the 1st, or the nearest business day when the 1st is a weekend or bank holiday. Final payment 2031-07-01.",
+      "timingNote": "A draft that lands a day or two after the 1st because of a weekend or bank holiday is expected and is NOT a late payment. The note allows a 10-day grace period before any late fee, and this ledger only marks a payment late once it is past that grace period. The exact date received is always shown.",
+      "lenderDetailsHeldBy": "Mercury (entered by the lender directly through Mercury's payee portal; no account or routing numbers are stored in this repository)"
     }
   },
   "confirmedThrough": 0,
