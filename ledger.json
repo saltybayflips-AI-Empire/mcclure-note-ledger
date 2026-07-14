@@ -30,6 +30,13 @@
       "page": "919",
       "recordedOn": "2026-06-29",
       "lienPosition": "First"
+    },
+    "paymentRail": {
+      "method": "Recurring ACH push, originated by the borrower through Mercury",
+      "setUpOn": "2026-07-14",
+      "schedule": "$450.00 auto-drafted on or around the 1st, for 60 months (Aug 2026 - Jul 2031)",
+      "timingNote": "The draft may land a day or two after the 1st when it falls on a weekend or bank holiday. That is expected and is not treated as a late payment - the note allows a 10-day grace period before any late fee.",
+      "lenderDetailsHeldBy": "Mercury (entered by the lender directly via Mercury's payee portal; no account numbers are stored in this repository)"
     }
   },
   "confirmedThrough": 0,

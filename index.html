@@ -87,6 +87,18 @@
   @media (prefers-color-scheme:dark){button.primary{color:#08130f}}
 
   .note{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+  .tool{
+    display:block;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+    text-decoration:none;color:var(--ink);background:var(--panel);
+  }
+  .tool:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .tool .t{font-weight:620;font-size:13.5px}
+  .tool .d{font-size:12px;color:var(--muted);margin-top:2px}
+  .tools-warn{
+    padding:10px 12px;border-radius:8px;background:var(--late-bg);color:var(--late);
+    font-size:12.5px;line-height:1.5;margin:0 0 12px
+  }
   .how{padding:16px 18px;font-size:13.5px;line-height:1.6}
   .how p{margin:0 0 9px}
   .how p:last-child{margin-bottom:0}
@@ -149,6 +161,12 @@
     </div>
   </section>
 
+  <section class="noprint" id="railSection" style="display:none">
+    <h2>How the payment arrives</h2>
+    <div class="panel terms"><dl id="rail"></dl></div>
+    <div class="note" id="railNote"></div>
+  </section>
+
   <section class="noprint">
     <h2>Payment ledger</h2>
     <div class="bar">
@@ -183,6 +201,24 @@
       <a id="historyLink" href="#" target="_blank" rel="noopener">view the change log →</a></p>
       <p><strong>If you believe an entry is wrong,</strong> email the lender. This ledger is maintained by the lender
       and is not a substitute for your own records or bank statements.</p>
+    </div>
+  </section>
+
+  <!-- ===== Lender tools — hidden unless the URL ends in #lender ===== -->
+  <section class="noprint" id="lenderTools" style="display:none">
+    <h2>Lender tools</h2>
+    <div class="panel how">
+      <p class="tools-warn">
+        <strong>Bookmark this page as <code id="lenderUrl"></code></strong> to keep this panel open.
+        It is a bookmark bar, not a secret — this repository is public, so it holds
+        <strong>login links only</strong>. Never put an account number, routing number, or password here.
+      </p>
+      <div class="tools" id="toolLinks"></div>
+      <p class="note" style="margin-top:12px">
+        <strong>Recording a payment:</strong> run <code>.\Record-Payment.ps1</code> from the local clone, or use the
+        <em>Record payment</em> action above from your phone. Never hand-edit <code>ledger.json</code> —
+        the script validates the entry and keeps the commit diff clean.
+      </p>
     </div>
   </section>
 
@@ -283,7 +319,10 @@
         daysLate = Math.max(0, daysBetween(recv, due));
         if(amt === 0) status = "missed";
         else if(amt < basePmt) status = "partial";
-        else if(daysLate > 0) status = "late";
+        // "Late" means late in the sense the NOTE means it — past the grace period.
+        // An ACH draft that slips a day or two because the 1st fell on a weekend or
+        // bank holiday is not a late payment. The exact days are still shown either way.
+        else if(daysLate > note.lateFeeGraceDays) status = "late";
         else status = "paid";
       }
 
@@ -389,6 +428,39 @@
       dt("Default rate", pct(note.defaultRate) + " (informational)")
     ].join("");
 
+    /* payment rail — how the money actually moves (both parties see this) */
+    var rail = note.paymentRail;
+    if(rail){
+      document.getElementById("railSection").style.display = "";
+      document.getElementById("rail").innerHTML = [
+        rail.method        ? dt("Method", rail.method) : "",
+        rail.schedule      ? dt("Schedule", rail.schedule) : "",
+        rail.setUpOn       ? dt("Set up", fmtDate(parseDate(rail.setUpOn))) : "",
+        rail.lenderDetailsHeldBy ? dt("Lender's bank details", rail.lenderDetailsHeldBy) : ""
+      ].filter(Boolean).join("");
+      document.getElementById("railNote").textContent = rail.timingNote || "";
+    }
+
+    /* lender tools — only when the URL ends in #lender */
+    var repoSlug = window.__REPO__ || "saltybayflips-AI-Empire/mcclure-note-ledger";
+    var repoUrl  = "https://github.com/" + repoSlug;
+    if(location.hash.toLowerCase() === "#lender"){
+      var panel = document.getElementById("lenderTools");
+      panel.style.display = "";
+      document.getElementById("lenderUrl").textContent = location.origin + location.pathname + "#lender";
+      var TOOLS = [
+        ["Mercury",              "https://app.mercury.com/dashboard",                    "Where the borrower's $450 auto-draft originates"],
+        ["Record a payment",     repoUrl + "/actions/workflows/record-payment.yml",      "Log this month's payment from your phone"],
+        ["Change history",       repoUrl + "/commits/main/ledger.json",                  "Every revision, timestamped — the audit trail"],
+        ["Edit ledger.json",     repoUrl + "/blob/main/ledger.json",                     "Raw file (prefer the script)"],
+        ["Repository",           repoUrl,                                                "Source + README"]
+      ];
+      document.getElementById("toolLinks").innerHTML = TOOLS.map(function(t){
+        return '<a class="tool" href="' + t[1] + '" target="_blank" rel="noopener">' +
+               '<div class="t">' + esc(t[0]) + '</div><div class="d">' + esc(t[2]) + "</div></a>";
+      }).join("");
+    }
+
     /* tax-year table */
     var byYear = {};
     actualRows.forEach(function(r){
@@ -428,7 +500,10 @@
         var cls = r.actual ? "" : "projected";
         if(nextRow && r.n === nextRow.n) cls += " next";
         var badge = '<span class="badge b-'+r.status+'">'+BADGE[r.status]+'</span>';
-        if(r.daysLate > 0) badge += ' <span style="color:var(--muted);font-size:11.5px">'+r.daysLate+'d late</span>';
+        // Show the day count either way — but only call it "late" once it's past the grace period.
+        if(r.daysLate > 0)
+          badge += ' <span style="color:var(--muted);font-size:11.5px">' +
+                   (r.status === "late" ? r.daysLate + "d late" : "+" + r.daysLate + "d") + "</span>";
         // don't echo a note that just repeats the status word ("late", "missed", …)
         if(r.note && r.note.trim().toLowerCase() !== BADGE[r.status].toLowerCase())
           badge += ' <span style="color:var(--muted);font-size:11.5px">'+esc(r.note)+'</span>';
@@ -484,7 +559,8 @@
         h += "<tr><td>"+r.n+"</td><td>"+fmtDate(r.due)+"</td><td>"+fmtDate(r.recvShown)+
              "</td><td class='num'>"+C(r.amount)+"</td><td class='num'>"+C(r.interest)+
              "</td><td class='num'>"+C(r.principal)+"</td><td class='num'>"+C(r.balance)+
-             "</td><td>"+BADGE[r.status]+(r.daysLate>0?" ("+r.daysLate+"d late)":"")+"</td></tr>";
+             "</td><td>"+BADGE[r.status]+
+             (r.daysLate>0 ? (r.status==="late" ? " ("+r.daysLate+"d late)" : " (+"+r.daysLate+"d)") : "")+"</td></tr>";
       });
       h += "</tbody>";
       document.getElementById("stmtTable").innerHTML = h;
