@@ -40,8 +40,14 @@
       "lenderDetailsHeldBy": "Mercury (entered by the lender directly through Mercury's payee portal; no account or routing numbers are stored in this repository)"
     }
   },
-  "confirmedThrough": 0,
-  "exceptions": [],
-  "asOf": "2026-07-08",
+  "confirmedThrough": 1,
+  "exceptions": [
+    {
+      "n": 1,
+      "amount": 450.0,
+      "receivedOn": "2026-08-10"
+    }
+  ],
+  "asOf": "2026-08-11",
   "updatedBy": "Khalil Giawashi"
 }
